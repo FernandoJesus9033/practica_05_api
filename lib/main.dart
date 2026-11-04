@@ -1,122 +1,283 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(
+  const MaterialApp(debugShowCheckedModeBanner: false, home: MenuPage()),
+);
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+// ============================================
+// MENÚ PRINCIPAL
+// ============================================
+class MenuPage extends StatelessWidget {
+  const MenuPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Práctica 05 - Menú'), centerTitle: true),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FilledButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const UsuariosPage()),
             ),
-          ],
-        ),
+            icon: const Icon(Icons.people),
+            label: const Text('Usuarios (Ejemplo Guiado)'),
+          ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PostsPage()),
+            ),
+            icon: const Icon(Icons.article),
+            label: const Text('Posts (Ejercicio Evaluable)'),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+    ),
+  );
+}
+
+// ============================================
+// MODELO: Usuario (Ejemplo Guiado)
+// ============================================
+class Usuario {
+  final int id;
+  final String nombre;
+  final String correo;
+
+  Usuario({required this.id, required this.nombre, required this.correo});
+
+  factory Usuario.fromJson(Map<String, dynamic> j) =>
+      Usuario(id: j['id'], nombre: j['name'], correo: j['email']);
+}
+
+// ============================================
+// MODELO: Post (Ejercicio Evaluable)
+// ============================================
+class Post {
+  final int id;
+  final String titulo;
+  final String cuerpo;
+
+  Post({required this.id, required this.titulo, required this.cuerpo});
+
+  factory Post.fromJson(Map<String, dynamic> j) =>
+      Post(id: j['id'], titulo: j['title'], cuerpo: j['body']);
+}
+
+// ============================================
+// PANTALLA: UsuariosPage (Ejemplo Guiado)
+// ============================================
+class UsuariosPage extends StatefulWidget {
+  const UsuariosPage({super.key});
+
+  @override
+  State<UsuariosPage> createState() => _UsuariosPageState();
+}
+
+class _UsuariosPageState extends State<UsuariosPage> {
+  late Future<List<Usuario>> futuro;
+
+  @override
+  void initState() {
+    super.initState();
+    futuro = cargar();
   }
+
+  Future<List<Usuario>> cargar() async {
+    final r = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/users'),
+    );
+    if (r.statusCode != 200) {
+      throw Exception('HTTP ${r.statusCode}');
+    }
+    final data = jsonDecode(r.body) as List;
+    return data.map((e) => Usuario.fromJson(e)).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Usuarios')),
+    body: FutureBuilder<List<Usuario>>(
+      future: futuro,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        final usuarios = snapshot.data ?? [];
+        return ListView.builder(
+          itemCount: usuarios.length,
+          itemBuilder: (_, i) => ListTile(
+            leading: CircleAvatar(child: Text('${usuarios[i].id}')),
+            title: Text(usuarios[i].nombre),
+            subtitle: Text(usuarios[i].correo),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+// ============================================
+// PANTALLA: PostsPage (Ejercicio Evaluable)
+// ============================================
+class PostsPage extends StatefulWidget {
+  const PostsPage({super.key});
+
+  @override
+  State<PostsPage> createState() => _PostsPageState();
+}
+
+class _PostsPageState extends State<PostsPage> {
+  late Future<List<Post>> futuro;
+
+  @override
+  void initState() {
+    super.initState();
+    futuro = cargar();
+  }
+
+  // 1. Consumo de API y validación de status (HTTP)
+  Future<List<Post>> cargar() async {
+    final r = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/posts'),
+    );
+
+    // Validación de status
+    if (r.statusCode != 200) {
+      throw Exception('Error HTTP: ${r.statusCode}');
+    }
+
+    // Conversión JSON a objetos Dart
+    final data = jsonDecode(r.body) as List;
+    return data.map((e) => Post.fromJson(e)).toList();
+  }
+
+  // 2. Actualización mediante RefreshIndicator
+  Future<void> _refrescar() async {
+    setState(() => futuro = cargar());
+    await futuro;
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: const Text('Publicaciones'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: () => setState(() => futuro = cargar()),
+        ),
+      ],
+    ),
+    body: FutureBuilder<List<Post>>(
+      future: futuro,
+      builder: (context, snapshot) {
+        // 3. Estado de Carga
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        // 4. Manejo de Error
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error, color: Colors.red, size: 60),
+                const SizedBox(height: 16),
+                Text('Error: ${snapshot.error}'),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () => setState(() => futuro = cargar()),
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // 5. Lista Vacía
+        final posts = snapshot.data ?? [];
+        if (posts.isEmpty) {
+          return const Center(child: Text('No hay publicaciones disponibles'));
+        }
+
+        // 6. Estado de Éxito (Lista y RefreshIndicator)
+        return RefreshIndicator(
+          onRefresh: _refrescar,
+          child: ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (_, i) => Card(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: ListTile(
+                leading: CircleAvatar(child: Text('${posts[i].id}')),
+                title: Text(
+                  posts[i].titulo,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  posts[i].cuerpo,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                // 7. Navegación a pantalla de detalle
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DetallePostPage(post: posts[i]),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+// ============================================
+// PANTALLA: DetallePostPage (Ejercicio Evaluable)
+// ============================================
+class DetallePostPage extends StatelessWidget {
+  final Post post;
+
+  const DetallePostPage({super.key, required this.post});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Detalle de Publicación')),
+    body: SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 40,
+            child: Text('${post.id}', style: const TextStyle(fontSize: 24)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            post.titulo,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Text(post.cuerpo, style: const TextStyle(fontSize: 16)),
+        ],
+      ),
+    ),
+  );
 }
